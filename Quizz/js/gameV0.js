@@ -30,6 +30,11 @@ let resultOK =0;
 let resultNO =0;
 let goodAnswerSound; 
 let wrongAnswerSound; 
+let welcomeImage;
+let menuImage;
+let welcomeText;
+let quizzText;
+let restartImage;
 
 // let quizz = '{"questions":[{"title": "Ma premère question","answer": ["réponse 0","Réponse 1"],"goodAnswerIndex" : 1},{ "title": "Ma deuxième question","answer": ["réponse 0", "Réponse 1"], "goodAnswerIndex" : 0}]}'
 
@@ -47,6 +52,9 @@ function preload() {
     this.load.image('star', './assets/Sprites/Star.png')
     this.load.audio('goodSound', './assets/Sound/good.wav')
     this.load.audio('badSound', './assets/Sound/wrong.wav')
+    this.load.image('welcome', './assets/Sprites/Windows3.png')
+    this.load.image('menu', './assets/Sprites/Menu.png')
+    this.load.image('restart', './assets/Sprites/Restart.png')
 }
 
 function create() {
@@ -56,23 +64,42 @@ function create() {
     backgroundImage = this.add.image(0, 0, 'background');
     backgroundImage.setOrigin(0,0);
     backgroundImage.setScale(0.5);
+
+    //welcome screen
+    welcomeImage = this.add.image(300,300, 'welcome');
+    welcomeImage.setScale(0.8)
+    quizzText = this.add.text(280,140, "Quizz",{ fontFamily: 'Arial', fontSize: 18, color: '#000000' });
+    welcomeText = this.add.text(190,230, "Play Start to play the game!!",{ fontFamily: 'Arial', fontSize: 18, color: '#000000' });
+    menuImage = this.add.image(300,330, 'menu').setInteractive();
+    menuImage.setScale(0.5);
+    menuImage.on('pointerdown', displayGameScreen);
+
+    restartImage = this.add.image(300,330, 'restart').setInteractive();
+    restartImage.setScale(0.5);
+    restartImage.on('pointerdown', restartGame);
+    restartImage.setVisible(false);
+
     QuestionImage = this.add.image(125, 50, 'label_1');
     QuestionImage.setOrigin(0,0);
     QuestionImage.setScale(0.5);
+    QuestionImage.setVisible(false);
     
     for(let i=0; i<answerNumber; i++) {
         answerImage[i] = this.add.image(300, 220 + i*110, 'label_2').setInteractive();
         answerImage[i].on('pointerdown', () => {checkAnswer(i)});
         //answerImage[i].setOrigin(0,0);
         answerImage[i].setScale(1);
+        answerImage[i].setVisible(false)
     }
     QuestionText = this.add.text(170, 80, quizz.questions[0].title,{ fontFamily: 'Arial', fontSize: 18, color: '#00ff00' });
     //QuestionText =this.add.text(220, 80, 'Question pour toi ?',{ fontFamily: 'Arial', fontSize: 18, color: '#00ff00' });
-    
+    QuestionText.setVisible(false);
+
     for(let i=0; i<answerNumber; i++) {
-        answerText[i] = this.add.text(250, 210 + i*110, quizz.questions[0].answers[i], { fontFamily: 'Arial', fontSize: 20, color: '#ab1239'});
+        answerText[i] = this.add.text(250, 210 + i*110, quizz.questions[0].answers[i], { fontFamily: 'Arial', fontSize: 20, color: '#000000'});
         //answerImage[i].setOrigin(0,0);
-        //answerText[i].setScale(0.8);  
+        //answerText[i].setScale(0.8); 
+        answerText[i].setVisible(false);
     }
     playButton = this.add.image(300,550,'play').setInteractive();
     playButton.setScale(0.3);
@@ -82,13 +109,12 @@ function create() {
     for (let i=0; i< 10; i++) {
         starImage[i] = this.add.image(50+i*55,600,'star');
         starImage[i].setScale(0.3);
-        starImage[i].alpha= 0.4;
+        starImage[i].alpha= 0.0;
     }
 
     goodAnswerSound = this.sound.add('goodSound');
     wrongAnswerSound = this.sound.add('badSound');
 }
-    
     
     // answerImage[1]= this.add.image(200, 280, 'label_2');
     // answerImage[1].setOrigin(0,0);
@@ -97,8 +123,6 @@ function create() {
     // labelBrownLight3.setOrigin(0,0);
     // labelBrownLight3.setScale(0.8);
     
-    
-
     // tweenBlinkChoice = this.tweens.add({
     //     targets: label4,
     //     alpha: 0,
@@ -108,17 +132,13 @@ function create() {
     //     loop: -1
     //     });  
 
-    
-
 function update() {
-
-       
+      
 }
-
 
 function checkAnswer(Answer_index){
     if(Answer_index==quizz.questions[currentQuestionIndex].goodAnswerIndex){
-        alert('yes');
+        
         // answerOk = true;
         playButton.setVisible(true);
         goodAnswerSound.play();
@@ -126,21 +146,26 @@ function checkAnswer(Answer_index){
         {
             starImage[currentQuestionIndex].alpha = 1.0;
             starImage[currentQuestionIndex].setTint(0x00ff00);
-            resultOK++;
-        }        
+        }
+        
+        resultOK++;    
     }
     else{
-        alert('no');
+        
         // answerOk = true;
         playButton.setVisible(true);
         wrongAnswerSound.play();
         for (let i=0; i< 10; i++){
             starImage[currentQuestionIndex].alpha = 1.0;
             starImage[currentQuestionIndex].setTint(0xff0000);
-            resultNO++;
-        }
-        
+        } 
+        resultNO++;
     }
+    for(let i=0; i<answerNumber; i++) {
+        answerImage[i].disableInteractive();
+        if (i== quizz.questions[currentQuestionIndex].goodAnswerIndex) answerText[i].setColor('#ff0000');
+        else answerText[i].setColor('#00ff00');
+    }    
     
 }
 
@@ -148,6 +173,7 @@ function displayNextQuestion(){
     currentQuestionIndex++;
     if (currentQuestionIndex>9) {
         alert("result ok: " + resultOK + "result no: "+ resultNO )
+        displayGameOver()
     }
     else {
         QuestionText.text = quizz.questions[currentQuestionIndex].title;
@@ -155,9 +181,56 @@ function displayNextQuestion(){
             answerText[i].text = quizz.questions[currentQuestionIndex].answers[i];
         }
         playButton.setVisible(false);
-        for (let i =0; i<answerNumber; i++){
-        answerImage[0].setInteractive();}
     }
+    for (let i =0; i<answerNumber; i++){
+        answerImage[i].setInteractive();
+        answerText[i].setColor("#000000");
+    }
+}
+function displayGameScreen() {
+    welcomeImage.setVisible(false);
+    menuImage.setVisible(false);
+    welcomeText.setVisible(false);
+    quizzText.setVisible(false);
+    QuestionText.setVisible(true);
+    QuestionImage.setVisible(true);
+    for(let i=0; i<answerNumber; i++) {
+        answerImage[i].setVisible(true);
+         
+        answerText[i].setVisible(true);
+    }
+    for (let i=0; i< 10; i++) {
+        starImage[i].alpha= 0.4;
+        starImage[i].tint = "0xffffff";
+    }
+}
+
+function restartGame() {
+    alert('ciao');
+    currentQuestionIndex = -1;
+    displayNextQuestion();
+    restartImage.setVisible(false);
+    displayGameScreen();
+    resultOK =0;
+    resultNO =0;
+}
+
+function displayGameOver() {
+    welcomeImage.setVisible(true);
+    quizzText.setVisible(true);
+    welcomeText.setVisible(true);
+    welcomeText.text = "Vous avez un score de " + resultOK + "/10\n Presser le bouton pour recommencer";    
+    restartImage.setVisible(true);
+
+    playButton.setVisible(false);
+    QuestionText.setVisible(false);
+    QuestionImage.setVisible(false);
+
+    for(let i=0; i<answerNumber; i++) {
+        answerImage[i].setVisible(false);
+        answerText[i].setVisible(false);
+    }
+    
 }
 
 

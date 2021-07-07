@@ -46,7 +46,7 @@ function preload() {
     this.load.image('play', './assets/Sprites/Play.png')
     this.load.image('star', './assets/Sprites/Star.png')
     this.load.audio('goodSound', './assets/Sound/good.wav')
-    this.load.audio('goodSound', './assets/Sound/wrong.wav')
+    this.load.audio('badSound', './assets/Sound/wrong.wav')
 }
 
 function create() {

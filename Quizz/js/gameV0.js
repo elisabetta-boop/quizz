@@ -55,9 +55,13 @@ function preload() {
     this.load.image('welcome', './assets/Sprites/Windows3.png')
     this.load.image('menu', './assets/Sprites/Menu.png')
     this.load.image('restart', './assets/Sprites/Restart.png')
+    loadFont("carterone", "./assets/Fonts/CarterOne.ttf");
+    loadFont("skranji", "./assets/Fonts/Skranji-Bold.ttf");
 }
 
 function create() {
+    
+
     quizz = this.cache.json.get('questions');
     console.log(quizz.questions[0].answers[2]);
     console.log(quizz.questions[1].title);
@@ -68,8 +72,8 @@ function create() {
     //welcome screen
     welcomeImage = this.add.image(300,300, 'welcome');
     welcomeImage.setScale(0.8)
-    quizzText = this.add.text(280,140, "Quizz",{ fontFamily: 'Arial', fontSize: 18, color: '#000000' });
-    welcomeText = this.add.text(190,230, "Play Start to play the game!!",{ fontFamily: 'Arial', fontSize: 18, color: '#000000' });
+    quizzText = this.add.text(275,135, "Quizz",{ fontFamily: 'carterone', fontSize: 20, color: '#000000' });
+    welcomeText = this.add.text(190,230, "Play Start to play the game!!",{ fontFamily: 'skranji', fontSize: 18, color: '#000000' });
     menuImage = this.add.image(300,330, 'menu').setInteractive();
     menuImage.setScale(0.5);
     menuImage.on('pointerdown', displayGameScreen);
@@ -88,15 +92,15 @@ function create() {
         answerImage[i] = this.add.image(300, 220 + i*110, 'label_2').setInteractive();
         answerImage[i].on('pointerdown', () => {checkAnswer(i)});
         //answerImage[i].setOrigin(0,0);
-        answerImage[i].setScale(1);
+        answerImage[i].setScale(1.2);
         answerImage[i].setVisible(false)
     }
-    QuestionText = this.add.text(170, 80, quizz.questions[0].title,{ fontFamily: 'Arial', fontSize: 18, color: '#00ff00' });
+    QuestionText = this.add.text(145, 70, quizz.questions[0].title,{ fontFamily: 'carterone', fontSize: 18, color: '#00ff00' });
     //QuestionText =this.add.text(220, 80, 'Question pour toi ?',{ fontFamily: 'Arial', fontSize: 18, color: '#00ff00' });
     QuestionText.setVisible(false);
 
-    for(let i=0; i<answerNumber; i++) {
-        answerText[i] = this.add.text(250, 210 + i*110, quizz.questions[0].answers[i], { fontFamily: 'Arial', fontSize: 20, color: '#000000'});
+    for(let i=0; i<quizz.questions[0].answers.length; i++) {
+        answerText[i] = this.add.text(180, 210 + i*110, quizz.questions[0].answers[i], { fontFamily: 'Arial', fontSize: 20, color: '#000000'});
         //answerImage[i].setOrigin(0,0);
         //answerText[i].setScale(0.8); 
         answerText[i].setVisible(false);
@@ -106,7 +110,7 @@ function create() {
     playButton.setVisible(false);
     playButton.on('pointerdown', displayNextQuestion); 
     
-    for (let i=0; i< 10; i++) {
+    for (let i=0; i< quizz.questions.length; i++) {
         starImage[i] = this.add.image(50+i*55,600,'star');
         starImage[i].setScale(0.3);
         starImage[i].alpha= 0.0;
@@ -114,6 +118,9 @@ function create() {
 
     goodAnswerSound = this.sound.add('goodSound');
     wrongAnswerSound = this.sound.add('badSound');
+
+     
+
 }
     
     // answerImage[1]= this.add.image(200, 280, 'label_2');
@@ -233,6 +240,15 @@ function displayGameOver() {
     
 }
 
+function loadFont(name, url) { 
+    var newFont = new FontFace(name, `url(${url})`); 
+    newFont.load().then(function (loaded) { 
+    document.fonts.add(loaded); 
+    }).catch(function (error) { 
+    return error; 
+    }); 
+   } 
+   
 
 
 // const myQuestions = [ {
